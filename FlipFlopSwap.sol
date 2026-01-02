@@ -179,6 +179,7 @@ contract FlipFlopSwap {
 
         emit ETHWithdrawn(amount);
 
-        payable(owner).transfer(amount);
+        (bool success, ) = payable(owner).call{value: amount}("");
+        require(success, "ETH transfer failed");
     }
 }
