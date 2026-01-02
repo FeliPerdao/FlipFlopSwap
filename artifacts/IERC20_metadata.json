@@ -1,0 +1,100 @@
+{
+	"compiler": {
+		"version": "0.8.30+commit.73712a01"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "spender",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "approve",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "balanceOf",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"author": "FeliPerdao",
+			"details": "Only Owner operations. ETH withdraws only.",
+			"kind": "dev",
+			"methods": {},
+			"title": "FlipFlopSwap",
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {
+				"approve(address,uint256)": {
+					"notice": "Approves token spending for a given spender"
+				},
+				"balanceOf(address)": {
+					"notice": "Returns balance of an address"
+				}
+			},
+			"notice": "Contract for simple ETH <-> USDT swaps using Uniswap V2",
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"FlipFlopSwap.sol": "IERC20"
+		},
+		"evmVersion": "prague",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"FlipFlopSwap.sol": {
+			"keccak256": "0x86a632dc5481580c6406725ccf8b1360bba73130864690ac9992ca66b07c11ae",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://5262e007e70823bd50d2d3b3f0ad2003f8c8fe38134b0b4322dcb6737af91ec9",
+				"dweb:/ipfs/QmQdr72m1Ew2KznvYZUk8ntQJXU5yzsBBLJkEYAVTem3VU"
+			]
+		}
+	},
+	"version": 1
+}
