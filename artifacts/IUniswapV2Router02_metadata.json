@@ -93,23 +93,16 @@
 			}
 		],
 		"devdoc": {
+			"author": "FeliPerdao",
 			"kind": "dev",
 			"methods": {},
+			"title": "FlipFlopSwap",
 			"version": 1
 		},
 		"userdoc": {
 			"kind": "user",
-			"methods": {
-				"WETH()": {
-					"notice": "WETH Token direction"
-				},
-				"swapExactETHForTokens(uint256,address[],address,uint256)": {
-					"notice": "Exact ETH swap for tokens"
-				},
-				"swapExactTokensForETH(uint256,uint256,address[],address,uint256)": {
-					"notice": "Exact tokens swap for ETH"
-				}
-			},
+			"methods": {},
+			"notice": "Contract for simple ETH <-> USDC swaps using Uniswap V2",
 			"version": 1
 		}
 	},
@@ -129,12 +122,20 @@
 		"remappings": []
 	},
 	"sources": {
-		"FlipFlopSwap.sol": {
-			"keccak256": "0x86a632dc5481580c6406725ccf8b1360bba73130864690ac9992ca66b07c11ae",
+		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+			"keccak256": "0x74ed01eb66b923d0d0cfe3be84604ac04b76482a55f9dd655e1ef4d367f95bc2",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://5262e007e70823bd50d2d3b3f0ad2003f8c8fe38134b0b4322dcb6737af91ec9",
-				"dweb:/ipfs/QmQdr72m1Ew2KznvYZUk8ntQJXU5yzsBBLJkEYAVTem3VU"
+				"bzz-raw://5282825a626cfe924e504274b864a652b0023591fa66f06a067b25b51ba9b303",
+				"dweb:/ipfs/QmeCfPykghhMc81VJTrHTC7sF6CRvaA1FXVq2pJhwYp1dV"
+			]
+		},
+		"FlipFlopSwap.sol": {
+			"keccak256": "0x7a90b670b2c4ce97818728a2e71817ab09bd3a71d34302c74362897e02509f9f",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://f82552a6796b58d6fbfbce13391299815e30bf222c7f571d4289d9ba1395745f",
+				"dweb:/ipfs/Qmf8eqaWcmk3BFeWJsQFL8FFYGwwTKwq659W6aX4ykLJy8"
 			]
 		}
 	},

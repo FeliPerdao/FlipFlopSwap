@@ -14,7 +14,7 @@
 					},
 					{
 						"internalType": "address",
-						"name": "_usdt",
+						"name": "_usdc",
 						"type": "address"
 					}
 				],
@@ -26,33 +26,7 @@
 				"inputs": [
 					{
 						"indexed": false,
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					}
-				],
-				"name": "ETHReceived",
-				"type": "event"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					}
-				],
-				"name": "ETHWithdrawn",
-				"type": "event"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": false,
-						"internalType": "enum FlipFlopSwap.SwapType",
+						"internalType": "uint8",
 						"name": "swapType",
 						"type": "uint8"
 					},
@@ -99,6 +73,24 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "rescueERC20",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "router",
 				"outputs": [
@@ -124,7 +116,7 @@
 						"type": "uint256"
 					}
 				],
-				"name": "swapETHToUSDT",
+				"name": "swapETHToUSDC",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -133,7 +125,7 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
-						"name": "usdtAmount",
+						"name": "usdcAmount",
 						"type": "uint256"
 					},
 					{
@@ -142,14 +134,14 @@
 						"type": "uint256"
 					}
 				],
-				"name": "swapUSDTToETH",
+				"name": "swapUSDCToETH",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
 				"inputs": [],
-				"name": "usdt",
+				"name": "usdc",
 				"outputs": [
 					{
 						"internalType": "contract IERC20",
@@ -180,90 +172,33 @@
 		],
 		"devdoc": {
 			"details": "Main Swap Contracto with slippage is manually enforced by the caller via amountOutMin",
-			"events": {
-				"ETHReceived(uint256)": {
-					"params": {
-						"amount": "ETH amount received"
-					}
-				},
-				"ETHWithdrawn(uint256)": {
-					"params": {
-						"amount": "ETH amount withdrawn"
-					}
-				},
-				"SwapExecuted(uint8,uint256,uint256)": {
-					"params": {
-						"amountIn": "Input Amount",
-						"amountOut": "Output Amount received",
-						"swapType": "Type of swap"
-					}
-				}
-			},
 			"kind": "dev",
 			"methods": {
-				"constructor": {
-					"params": {
-						"_router": "Uniswap V2 router address",
-						"_usdt": "USDT token address"
-					}
+				"swapETHToUSDC(uint256,uint256)": {
+					"details": "Slippage is manually controlled via amountOutMin"
 				},
-				"swapETHToUSDT(uint256,uint256)": {
-					"details": "Slippage is manually controlled via amountOutMin",
-					"params": {
-						"amountOutMin": "Minimum USDT amount accepted",
-						"ethAmount": "Exact ETH amount to swap"
-					}
-				},
-				"swapUSDTToETH(uint256,uint256)": {
-					"details": "Requires prior token approval to the router",
-					"params": {
-						"amountOutMin": "Minimum ETH amount accepted",
-						"usdtAmount": "Exact USDT amount to swap"
-					}
+				"swapUSDCToETH(uint256,uint256)": {
+					"details": "Requires prior token approval to the router"
 				},
 				"withdrawETH(uint256)": {
-					"details": "USDT withdrawals are intentionally not supported",
-					"params": {
-						"amount": "ETH amount to withdraw"
-					}
+					"details": "USDC has no withdrawal function; emergency rescue only"
 				}
 			},
 			"version": 1
 		},
 		"userdoc": {
 			"events": {
-				"ETHReceived(uint256)": {
-					"notice": "Emitted when ETH is received"
-				},
-				"ETHWithdrawn(uint256)": {
-					"notice": "Emitted when ETH is withdrawn"
-				},
 				"SwapExecuted(uint8,uint256,uint256)": {
 					"notice": "Emmited after a successful swap"
 				}
 			},
 			"kind": "user",
 			"methods": {
-				"DEADLINE_OFFSET()": {
-					"notice": "Maximum execution delay to reduce price manipulation risk"
+				"swapETHToUSDC(uint256,uint256)": {
+					"notice": "Swaps ETH for USDC"
 				},
-				"constructor": {
-					"notice": "Contract constructor"
-				},
-				"owner()": {
-					"notice": "Only Owner restriction"
-				},
-				"router()": {
-					"notice": "Router Uniswap V2"
-				},
-				"swapETHToUSDT(uint256,uint256)": {
-					"notice": "Swaps ETH for USDT"
-				},
-				"swapUSDTToETH(uint256,uint256)": {
-					"notice": "Swaps USDT for ETH"
-				},
-				"usdt()": {
-					"notice": "only USDT token swaps"
+				"swapUSDCToETH(uint256,uint256)": {
+					"notice": "Swaps USDC for ETH"
 				},
 				"withdrawETH(uint256)": {
 					"notice": "Withdraws ETH from the contract"
@@ -288,12 +223,20 @@
 		"remappings": []
 	},
 	"sources": {
-		"FlipFlopSwap.sol": {
-			"keccak256": "0x86a632dc5481580c6406725ccf8b1360bba73130864690ac9992ca66b07c11ae",
+		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+			"keccak256": "0x74ed01eb66b923d0d0cfe3be84604ac04b76482a55f9dd655e1ef4d367f95bc2",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://5262e007e70823bd50d2d3b3f0ad2003f8c8fe38134b0b4322dcb6737af91ec9",
-				"dweb:/ipfs/QmQdr72m1Ew2KznvYZUk8ntQJXU5yzsBBLJkEYAVTem3VU"
+				"bzz-raw://5282825a626cfe924e504274b864a652b0023591fa66f06a067b25b51ba9b303",
+				"dweb:/ipfs/QmeCfPykghhMc81VJTrHTC7sF6CRvaA1FXVq2pJhwYp1dV"
+			]
+		},
+		"FlipFlopSwap.sol": {
+			"keccak256": "0x7a90b670b2c4ce97818728a2e71817ab09bd3a71d34302c74362897e02509f9f",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://f82552a6796b58d6fbfbce13391299815e30bf222c7f571d4289d9ba1395745f",
+				"dweb:/ipfs/Qmf8eqaWcmk3BFeWJsQFL8FFYGwwTKwq659W6aX4ykLJy8"
 			]
 		}
 	},

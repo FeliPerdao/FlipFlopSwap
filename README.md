@@ -1,6 +1,6 @@
 # FlipFlopSwap
 
-Simple, owner-only smart contract to perform ETH ⇄ USDT swaps using **Uniswap V2**, with **manual slippage control** enforced off-chain.
+Simple, owner-only smart contract to perform ETH ⇄ USDC swaps using **Uniswap V2**, with **manual slippage control** enforced off-chain.
 
 Designed to be driven by an external bot (e.g. Python + Web3), keeping on-chain logic minimal, explicit, and auditable.
 
@@ -8,13 +8,14 @@ Designed to be driven by an external bot (e.g. Python + Web3), keeping on-chain 
 
 ## 🚀 Features
 
-- ETH → USDT swaps
-- USDT → ETH swaps
+- ETH → USDC swaps
+- USDC → ETH swaps
 - Manual slippage (`amountOutMin`) per transaction
 - Short deadline to reduce MEV exposure
 - Owner-only execution
-- ETH withdrawals (USDT intentionally locked)
-- Full event logging (deposits, swaps, withdrawals)
+- ETH withdrawals
+- ERC20 rescue function (emergency only)
+- Full event logging for swaps
 
 ---
 
@@ -44,8 +45,8 @@ Less magic. Less risk.
 ### Swap Functions
 
 ```solidity
-swapETHToUSDT(uint ethAmount, uint amountOutMin)
-swapUSDTToETH(uint usdtAmount, uint amountOutMin)
+swapETHToUSDC(uint256 ethAmount, uint256 amountOutMin)
+swapUSDCToETH(uint256 usdcAmount, uint256 amountOutMin)
 ```
 
 - `amountOutMin` is calculated **off-chain**
@@ -59,21 +60,25 @@ swapUSDTToETH(uint usdtAmount, uint amountOutMin)
 - ETH can be received via:
   - Owner deposits
   - Swap outputs
-- All ETH movements emit events
 - Only the owner can withdraw ETH
 
 ```solidity
 receive() external payable
-withdrawETH(uint amount)
+withdrawETH(uint256 amount)
 ```
 
 ---
 
 ### Token Handling
 
-- Only USDT is supported
-- USDT withdrawals are **not supported by design**
-- Safe approve pattern used (`approve(0)` → `approve(amount)`)
+- Only **USDC** is supported for swaps
+- USDC is approved once at deployment using the standard ERC20 `approve` pattern
+- Direct USDC withdrawals are intentionally not exposed
+- Emergency ERC20 rescue function available for recovery scenarios
+
+```solidity
+rescueERC20(address token, uint256 amount)
+```
 
 ---
 
@@ -88,11 +93,9 @@ withdrawETH(uint amount)
 
 ## 📜 Events
 
-| Event          | Description                  |
-| -------------- | ---------------------------- |
-| `ETHReceived`  | ETH received by the contract |
-| `ETHWithdrawn` | ETH withdrawn by owner       |
-| `SwapExecuted` | Successful swap execution    |
+| Event          | Description               |
+| -------------- | ------------------------- |
+| `SwapExecuted` | Successful swap execution |
 
 ---
 
@@ -101,13 +104,13 @@ withdrawETH(uint amount)
 - **Slippage** is enforced manually via `amountOutMin`
 - **Deadline** limited to 60 seconds
 - **No price oracles** on-chain
-- **No reentrancy risk** (no external callbacks after transfers)
+- **No reentrancy risk** (no external callbacks after swaps)
 - **MEV risk minimized**, not eliminated (small trades recommended)
 
-For higher protection:
+For additional protection:
 
 - Private transactions (Flashbots)
-- MEV-protected RPCs
+- MEV-protected RPC endpoints
 
 ---
 
@@ -137,14 +140,14 @@ Constructor parameters:
 ```solidity
 constructor(
     address _router, // Uniswap V2 Router
-    address _usdt    // USDT token address
+    address _usdc    // USDC token address
 )
 ```
 
 Example (Ethereum mainnet):
 
-- Router: `0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D`
-- USDT: `0xdAC17F958D2ee523a2206206994597C13D831ec7`
+- Uniswap V2 Router: `0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D`
+- USDC: `0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48`
 
 ---
 
@@ -159,24 +162,20 @@ MIT License
 **FeliPerdao**
 
 Industrial engineer.  
-Likes simple contracts, manual control, and not getting sandwiched.
+Prefers explicit control, minimal contracts, and predictable execution.
 
 ---
 
 ## 🧯 Final Note
 
-If you’re looking for:
+This code **is not**:
 
 - complex on-chain strategies
 - autonomous trading logic
 - “AI smart contracts”
 
-This is **not** that.
-
-If you want:
+This code **is**:
 
 - control
 - clarity
 - safety
-
-You’re in the right place.

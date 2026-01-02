@@ -1,23 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 /// @title FlipFlopSwap
 /// @author FeliPerdao
-/// @notice Contract for simple ETH <-> USDT swaps using Uniswap V2
-/// @dev Only Owner operations. ETH withdraws only.
-interface IERC20 {
-    /// @notice Returns balance of an address
-    function balanceOf(address account) external view returns (uint256);
+/// @notice Contract for simple ETH <-> USDC swaps using Uniswap V2
+/// @dev All pricing, slippage and execution logic is handled off-chain.
 
-    /// @notice Approves token spending for a given spender
-    function approve(address spender, uint256 amount) external returns (bool);
-}
 
 interface IUniswapV2Router02 {
-    /// @notice WETH Token direction
+    /// @notice Returns the WETH address used by the router
     function WETH() external pure returns (address);
 
-    /// @notice Exact ETH swap for tokens
+    /// @notice Swaps an exact amount of ETH for tokens
     function swapExactETHForTokens(
         uint amountOutMin,
         address[] calldata path,
@@ -25,7 +21,7 @@ interface IUniswapV2Router02 {
         uint deadline
     ) external payable returns (uint[] memory amounts);
 
-    /// @notice Exact tokens swap for ETH
+    /// @notice Swaps an exact amount of tokens for ETH
     function swapExactTokensForETH(
         uint amountIn,
         uint amountOutMin,
@@ -35,43 +31,34 @@ interface IUniswapV2Router02 {
     ) external returns (uint[] memory amounts);
 }
 
-/// @dev Main Swap Contracto with slippage is manually enforced by the caller via amountOutMin
+/// @dev Minimal owner-only swap contract.
+/// Slippage and execution strategy are enforced off-chain via amountOutMin.
 contract FlipFlopSwap {
-
-    /// @notice Only Owner restriction
+    /// @notice Contract owner with exclusive execution rights
     address public immutable owner;
-    /// @notice Router Uniswap V2
+
+    /// @notice Uniswap V2 router
     IUniswapV2Router02 public immutable router;
 
-    /// @notice only USDT token swaps
-    IERC20 public immutable usdt;
+    /// @notice USDC token used for swaps
+    IERC20 public immutable usdc;
 
     /// @notice Maximum execution delay to reduce price manipulation risk
     uint256 public constant DEADLINE_OFFSET = 60;
 
     // =========================
-    // EVENTS
+    // EVENTS / ACCESS CONTROL
     // =========================
-    /// @notice Swap type executed
-    enum SwapType { ETH_TO_USDT, USDT_TO_ETH }
 
-    /// @notice Emmited after a successful swap
-    /// @param swapType Type of swap
-    /// @param amountIn Input Amount
-    /// @param amountOut Output Amount received
+    /// @notice Emitted after a successful swap execution
+    /// @param swapType 0 = ETH → USDC, 1 = USDC → ETH
+    /// @param amountIn Exact input amount
+    /// @param amountOut Exact output amount received
     event SwapExecuted(
-        SwapType swapType,
+        uint8 swapType, // 0 = ETH->USDC, 1 = USDC->ETH
         uint amountIn,
         uint amountOut
     );
-
-    /// @notice Emitted when ETH is received
-    /// @param amount ETH amount received
-    event ETHReceived(uint amount);
-
-    /// @notice Emitted when ETH is withdrawn
-    /// @param amount ETH amount withdrawn
-    event ETHWithdrawn(uint amount);
 
     /// @dev Restricts function access to the contract owner
     modifier onlyOwner() {
@@ -79,42 +66,42 @@ contract FlipFlopSwap {
         _;
     }
 
-    /// @notice Contract constructor
+    // =========================
+    // CONSTRUCTOR / RECEIVE
+    // =========================
+
     /// @param _router Uniswap V2 router address
-    /// @param _usdt USDT token address
-    constructor(address _router, address _usdt) {
+    /// @param _usdc USDC token address
+    constructor(address _router, address _usdc) {
         owner = msg.sender;
         router = IUniswapV2Router02(_router);
-        usdt = IERC20(_usdt);
+        usdc = IERC20(_usdc);
+
+        // Unlimited approval to avoid repeated approvals during swaps
+        usdc.approve(_router, type(uint256).max);
     }
 
-    // =========================
-    // RECEIVE ETH  
-    // =========================
-    /// @notice Receives ETH (from owner deposit or swap result)
-    /// @dev Only the owner is expected to send ETH
-    receive() external payable {
-        emit ETHReceived(msg.value);
-    }
+    /// @notice Allows the contract to receive ETH
+    receive() external payable {}
 
     // =========================
     // SWAPS
     // =========================
 
-    /// @notice Swaps ETH for USDT
+    /// @notice Swaps ETH for USDC
     /// @dev Slippage is manually controlled via amountOutMin
     /// @param ethAmount Exact ETH amount to swap
-    /// @param amountOutMin Minimum USDT amount accepted
-    function swapETHToUSDT(
+    /// @param amountOutMin Minimum USDC amount accepted (slippage protection)
+    function swapETHToUSDC(
         uint ethAmount,
         uint amountOutMin
     ) external onlyOwner {
-        require(ethAmount > 0, "eth = 0");
-        require(address(this).balance >= ethAmount, "no hay ETH");
+        require(ethAmount > 0, "ZERO_AMOUNT");
+        require(address(this).balance >= ethAmount, "INSUFFICIENT_ETH");
 
         address[] memory path = new address[](2);
         path[0] = router.WETH();
-        path[1] = address(usdt);
+        path[1] = address(usdc);
 
         uint[] memory amounts =
             router.swapExactETHForTokens{value: ethAmount}(
@@ -124,46 +111,34 @@ contract FlipFlopSwap {
                 block.timestamp + DEADLINE_OFFSET
             );
 
-        emit SwapExecuted(
-            SwapType.ETH_TO_USDT,
-            ethAmount,
-            amounts[1]
-        );
+        emit SwapExecuted(0, ethAmount, amounts[1]);
     }
 
-    /// @notice Swaps USDT for ETH
+    /// @notice Swaps USDC for ETH
     /// @dev Requires prior token approval to the router
-    /// @param usdtAmount Exact USDT amount to swap
-    /// @param amountOutMin Minimum ETH amount accepted
-    function swapUSDTToETH(
-        uint usdtAmount,
+    /// @param usdcAmount Exact USDC amount to swap
+    /// @param amountOutMin Minimum ETH amount accepted (slippage protection)
+    function swapUSDCToETH(
+        uint usdcAmount,
         uint amountOutMin
     ) external onlyOwner {
-        require(usdtAmount > 0, "usdt = 0");
-        require(usdt.balanceOf(address(this)) >= usdtAmount, "no hay USDT");
-
-        usdt.approve(address(router), 0);
-        usdt.approve(address(router), usdtAmount);
-
+        require(usdcAmount > 0, "ZERO_USDC");
+        require(usdc.balanceOf(address(this)) >= usdcAmount, "INSUFFICIENT_USDC");
 
         address[] memory path = new address[](2);
-        path[0] = address(usdt);
+        path[0] = address(usdc);
         path[1] = router.WETH();
 
         uint[] memory amounts =
             router.swapExactTokensForETH(
-                usdtAmount,
+                usdcAmount,
                 amountOutMin,
                 path,
                 address(this),
                 block.timestamp + DEADLINE_OFFSET
             );
 
-        emit SwapExecuted(
-            SwapType.USDT_TO_ETH,
-            usdtAmount,
-            amounts[1]
-        );
+        emit SwapExecuted(1, usdcAmount, amounts[1]);
     }
 
     // =========================
@@ -171,15 +146,23 @@ contract FlipFlopSwap {
     // =========================
 
     /// @notice Withdraws ETH from the contract
-    /// @dev USDT withdrawals are intentionally not supported
+    /// @dev USDC has no withdrawal function; emergency rescue only
     /// @param amount ETH amount to withdraw
     function withdrawETH(uint amount) external onlyOwner {
         require(amount > 0, "amount = 0");
         require(address(this).balance >= amount, "no ETH enough");
 
-        emit ETHWithdrawn(amount);
-
         (bool success, ) = payable(owner).call{value: amount}("");
         require(success, "ETH transfer failed");
+    }
+
+    // =========================
+    // EMERGENCY / RESCUE
+    // =========================
+
+    /// @notice Rescue any ERC20 tokens sent to the contract by mistake
+    /// @dev Intended for emergency recovery only
+    function rescueERC20(address token, uint amount) external onlyOwner {
+        IERC20(token).transfer(owner, amount);
     }
 }
