@@ -62,7 +62,7 @@ contract FlipFlopSwap {
 
     /// @dev Restricts function access to the contract owner
     modifier onlyOwner() {
-        require(msg.sender == owner, "not owner");
+        require(msg.sender == owner, "NOT_OWNER");
         _;
     }
 
@@ -76,13 +76,19 @@ contract FlipFlopSwap {
         owner = msg.sender;
         router = IUniswapV2Router02(_router);
         usdc = IERC20(_usdc);
-
-        // Unlimited approval to avoid repeated approvals during swaps
-        usdc.approve(_router, type(uint256).max);
     }
 
     /// @notice Allows the contract to receive ETH
     receive() external payable {}
+
+    // =========================
+    // APPROVAL
+    // =========================
+
+    /// @notice Approves router to spend USDC (call once after deploy)
+    function approveUSDC() external onlyOwner {
+        usdc.approve(address(router), type(uint256).max);
+    }
 
     // =========================
     // SWAPS

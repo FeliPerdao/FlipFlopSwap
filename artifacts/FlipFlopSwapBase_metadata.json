@@ -61,13 +61,6 @@
 			},
 			{
 				"inputs": [],
-				"name": "approveUSDC",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
 				"name": "owner",
 				"outputs": [
 					{
@@ -192,8 +185,8 @@
 			"methods": {
 				"constructor": {
 					"params": {
-						"_router": "Uniswap V2 router address",
-						"_usdc": "USDC token address"
+						"_router": "Uniswap V2 router (Base) address",
+						"_usdc": "USDC token (Base) address"
 					}
 				},
 				"rescueERC20(address,uint256)": {
@@ -233,9 +226,6 @@
 				"DEADLINE_OFFSET()": {
 					"notice": "Maximum execution delay to reduce price manipulation risk"
 				},
-				"approveUSDC()": {
-					"notice": "Approves router to spend USDC (call once after deploy)"
-				},
 				"owner()": {
 					"notice": "Contract owner with exclusive execution rights"
 				},
@@ -263,9 +253,9 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"FlipFlopSwap.sol": "FlipFlopSwap"
+			"FlipFlopSwapBase.sol": "FlipFlopSwapBase"
 		},
-		"evmVersion": "paris",
+		"evmVersion": "prague",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
@@ -285,12 +275,12 @@
 				"dweb:/ipfs/QmeCfPykghhMc81VJTrHTC7sF6CRvaA1FXVq2pJhwYp1dV"
 			]
 		},
-		"FlipFlopSwap.sol": {
-			"keccak256": "0x744a5be10520e08f0724f9518e1dfb8aaa387cf53fa2d28dd7ddc32f20cfac99",
+		"FlipFlopSwapBase.sol": {
+			"keccak256": "0x0488980885edf21013fb85afbb24df1c18fc04a284fb66ea6f65f8de43942e18",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://e3680f66577a31271cf22babca3de80471efa0d8e8936050606cbca9089394aa",
-				"dweb:/ipfs/Qmb5La52bhDiuykr7tEJZjtQ55nkx2QG7LZ2t3zPLgM758"
+				"bzz-raw://8511fa8f1e94cfd9322514040cc8067fc6f7a91e222c456ea9c75504a7fbba30",
+				"dweb:/ipfs/QmZsqqy7y8vRe6xQeHf86Hs6vHgB9r2ZTsK4uHLMdQCTfZ"
 			]
 		}
 	},

@@ -94,6 +94,7 @@
 		],
 		"devdoc": {
 			"author": "FeliPerdao",
+			"details": "All pricing, slippage and execution logic is handled off-chain.",
 			"kind": "dev",
 			"methods": {},
 			"title": "FlipFlopSwap",
@@ -101,7 +102,17 @@
 		},
 		"userdoc": {
 			"kind": "user",
-			"methods": {},
+			"methods": {
+				"WETH()": {
+					"notice": "Returns the WETH address used by the router"
+				},
+				"swapExactETHForTokens(uint256,address[],address,uint256)": {
+					"notice": "Swaps an exact amount of ETH for tokens"
+				},
+				"swapExactTokensForETH(uint256,uint256,address[],address,uint256)": {
+					"notice": "Swaps an exact amount of tokens for ETH"
+				}
+			},
 			"notice": "Contract for simple ETH <-> USDC swaps using Uniswap V2",
 			"version": 1
 		}
@@ -110,7 +121,7 @@
 		"compilationTarget": {
 			"FlipFlopSwap.sol": "IUniswapV2Router02"
 		},
-		"evmVersion": "prague",
+		"evmVersion": "paris",
 		"libraries": {},
 		"metadata": {
 			"bytecodeHash": "ipfs"
@@ -131,11 +142,11 @@
 			]
 		},
 		"FlipFlopSwap.sol": {
-			"keccak256": "0x7a90b670b2c4ce97818728a2e71817ab09bd3a71d34302c74362897e02509f9f",
+			"keccak256": "0x744a5be10520e08f0724f9518e1dfb8aaa387cf53fa2d28dd7ddc32f20cfac99",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://f82552a6796b58d6fbfbce13391299815e30bf222c7f571d4289d9ba1395745f",
-				"dweb:/ipfs/Qmf8eqaWcmk3BFeWJsQFL8FFYGwwTKwq659W6aX4ykLJy8"
+				"bzz-raw://e3680f66577a31271cf22babca3de80471efa0d8e8936050606cbca9089394aa",
+				"dweb:/ipfs/Qmb5La52bhDiuykr7tEJZjtQ55nkx2QG7LZ2t3zPLgM758"
 			]
 		}
 	},
